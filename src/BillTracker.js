@@ -299,6 +299,13 @@ const BillTracker = () => {
     return { nextPayday, secondNextPayday };
   };
 
+  const getCurrentMonthRange = () => {
+    const currentDate = moment();
+    const startDate = currentDate.startOf("month").format("YYYY-MM-DD");
+    const endDate = currentDate.endOf("month").format("YYYY-MM-DD");
+    return { startDate, endDate };
+  };
+
   const filterDueBills = () => {
     const currentDate = moment().startOf("day").format("YYYY-MM-DD");
     const nextPayday = paydays.find((payday) =>
@@ -329,6 +336,37 @@ const BillTracker = () => {
       secondNextPayday.date
     );
     setFilteredBills(filteredBills);
+  };
+
+  const filterBillsInCurrentMonth = () => {
+    const { startDate, endDate } = getCurrentMonthRange();
+    const filteredBills = bills.filter(
+      (bill) =>
+        moment(bill.dueDate).isSameOrAfter(startDate, "day") &&
+        moment(bill.dueDate).isSameOrBefore(endDate, "day")
+    );
+    setFilteredBills(filteredBills);
+  };
+
+  const filterNextMonthsBills = () => {
+    // Get the first day of the next month
+    const firstDayOfNextMonth = moment().add(1, "month").startOf("month");
+
+    // Get the last day of the next month
+    const lastDayOfNextMonth = moment().add(1, "month").endOf("month");
+
+    // Filter bills based on their due dates
+    const filtered = bills.filter((bill) => {
+      const dueDate = moment(bill.dueDate);
+      return dueDate.isBetween(
+        firstDayOfNextMonth,
+        lastDayOfNextMonth,
+        null,
+        "[]"
+      );
+    });
+
+    setFilteredBills(filtered);
   };
 
   const filterPaidBills = () => {
@@ -432,6 +470,18 @@ const BillTracker = () => {
                 onClick={filterBillsBetweenNextPaydays}
               >
                 Next Paycheck Bills
+              </button>
+              <button
+                className="btn btn-secondary mr-2"
+                onClick={filterBillsInCurrentMonth}
+              >
+                {`${moment().format("MMMM")}`}
+              </button>
+              <button
+                className="btn btn-secondary mr-2"
+                onClick={filterNextMonthsBills}
+              >
+                {moment().add(1, "month").format("MMMM")}
               </button>
               <button
                 className="btn btn-secondary mr-2"
