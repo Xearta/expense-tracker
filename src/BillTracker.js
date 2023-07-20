@@ -29,6 +29,9 @@ const BillTracker = () => {
   const [filteredBills, setFilteredBills] = useState([]);
   const [currentFilter, setCurrentFilter] = useState("duebills");
 
+  // State variable to track when sorting is required
+  const [sortRequired, setSortRequired] = useState(true);
+
   const [paydays, setPaydays] = useState([]);
 
   // State variable to track if data has been loaded from Firebase
@@ -104,6 +107,30 @@ const BillTracker = () => {
     console.log(currentFilter);
   }, [bills, dataLoaded]);
 
+  useEffect(() => {
+    // Run filtering whenever the 'bills' state or 'currentFilter' changes
+    if (currentFilter === "duebills") {
+      filterDueBills();
+    } else if (currentFilter === "nextpaycheck") {
+      filterBillsBetweenNextPaydays();
+    } else if (currentFilter === "currentmonth") {
+      filterBillsInCurrentMonth();
+    } else if (currentFilter === "nextmonth") {
+      filterNextMonthsBills();
+    } else if (currentFilter === "allbills") {
+      showAllBills();
+    }
+  }, [bills, currentFilter]);
+
+  useEffect(() => {
+    // Run sorting whenever the 'filteredBills' state changes and sort is required
+    if (sortRequired) {
+      checkDueDates();
+      sortBills();
+      setSortRequired(false); // Reset the sorting requirement
+    }
+  }, [filteredBills, sortRequired]);
+
   const loadDataFromFirebase = (node) => {
     console.log(`LOADING ${node} FROM FIREBASE`);
 
@@ -156,6 +183,7 @@ const BillTracker = () => {
     });
 
     setBills(updatedBills);
+    console.log("checked due dates");
   };
 
   const getNextWeekDate = (currentDate) => {
@@ -196,8 +224,17 @@ const BillTracker = () => {
           paid: false,
         };
 
+        checkDueDates();
+
         setFilteredBills([...filteredBills, bill]);
         setBills((prevBills) => [...prevBills, bill]);
+
+        setSortRequired(true);
+
+        // Check if the current filter is Due Bills and filter correctly if it is:
+        if (currentFilter === "duebills") {
+          filterDueBills();
+        }
       }
 
       // Reset the form and editing index after adding/updating a bill
@@ -418,9 +455,18 @@ const BillTracker = () => {
             <div>
               <p className="h4">${editedBalance.toFixed(2)}</p>
               <input
+                inputMode="numeric"
                 type="number"
+                placeholder="Enter a number"
                 value={editedBalance}
-                onChange={(e) => setEditedBalance(parseFloat(e.target.value))}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  if (inputValue === "") {
+                    setEditedBalance(0);
+                  } else {
+                    setEditedBalance(parseFloat(inputValue));
+                  }
+                }}
               />
               <button
                 className="btn btn-primary btn-sm"
@@ -449,6 +495,7 @@ const BillTracker = () => {
               />
               <input
                 type="number"
+                inputMode="numeric"
                 placeholder="Enter bill amount"
                 value={newBillAmount}
                 onChange={(e) => setNewBillAmount(e.target.value)}
