@@ -27,6 +27,7 @@ const BillTracker = () => {
   const [frequency, setFrequency] = useState("onetime");
   const [spendableAmount, setSpendableAmount] = useState(0);
   const [filteredBills, setFilteredBills] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState("duebills");
 
   const [paydays, setPaydays] = useState([]);
 
@@ -81,13 +82,6 @@ const BillTracker = () => {
     });
   }, []);
 
-  // Run filterDueBills automatically after both paydays and bills data is loaded
-  useEffect(() => {
-    if (paydays.length > 0 && bills.length > 0) {
-      filterDueBills();
-    }
-  }, [paydays, bills]);
-
   useEffect(() => {
     if (dataLoaded) {
       // Data is loaded from Firebase, so now we can run checkDueDates once
@@ -101,12 +95,13 @@ const BillTracker = () => {
     if (dataLoaded & !isFirstLoad.current) {
       // Save data to Firebase whenever bills change
       saveDataToFirebase("bills", bills);
-      filterDueBills();
       const spendableAmount = calculateSpendableAmount();
       setSpendableAmount(spendableAmount);
     }
 
     isFirstLoad.current = false;
+
+    console.log(currentFilter);
   }, [bills, dataLoaded]);
 
   const loadDataFromFirebase = (node) => {
@@ -262,14 +257,17 @@ const BillTracker = () => {
   };
 
   const handlePaymentToggle = (index) => {
-    console.log(index);
-
     const updatedBills = [...filteredBills];
     updatedBills[index].paid = !updatedBills[index].paid;
     setBills(updatedBills);
 
     checkDueDates();
     sortBills();
+
+    // Check if the current filter is Due Bills and filter correctly if it is:
+    if (currentFilter === "duebills") {
+      filterDueBills();
+    }
   };
 
   const sortBills = () => {
@@ -312,6 +310,8 @@ const BillTracker = () => {
   };
 
   const filterDueBills = () => {
+    setCurrentFilter("duebills");
+
     const currentDate = moment().startOf("day").format("YYYY-MM-DD");
     const nextPayday = paydays.find((payday) =>
       moment(payday.date).isSameOrAfter(currentDate)
@@ -336,6 +336,8 @@ const BillTracker = () => {
   };
 
   const filterBillsBetweenNextPaydays = () => {
+    setCurrentFilter("nextpaycheck");
+
     const { nextPayday, secondNextPayday } = getNextPayday();
     const filteredBills = filterBillsBetweenPaydays(
       nextPayday.date,
@@ -345,6 +347,8 @@ const BillTracker = () => {
   };
 
   const filterBillsInCurrentMonth = () => {
+    setCurrentFilter("currentmonth");
+
     const { startDate, endDate } = getCurrentMonthRange();
     const filteredBills = bills.filter(
       (bill) =>
@@ -355,6 +359,8 @@ const BillTracker = () => {
   };
 
   const filterNextMonthsBills = () => {
+    setCurrentFilter("nextmonth");
+
     // Get the first day of the next month
     const firstDayOfNextMonth = moment().add(1, "month").startOf("month");
 
@@ -376,6 +382,8 @@ const BillTracker = () => {
   };
 
   const showAllBills = () => {
+    setCurrentFilter("allbills");
+
     setFilteredBills(bills);
   };
 
