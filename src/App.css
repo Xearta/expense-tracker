@@ -1,38 +1,75 @@
-.App {
-  text-align: center;
+.container {
+  margin-top: 20px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.card {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.card h3 {
+  margin-bottom: 10px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.card p {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.container {
+  margin-top: 20px;
+}
+
+.card {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.card h3 {
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Additional custom styles */
+.add-bill-form {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: space-between;
+  margin-bottom: 15px;
 }
 
-.App-link {
-  color: #61dafb;
+.add-bill-form input[type="text"],
+.add-bill-form input[type="number"],
+.add-bill-form select {
+  flex: 1;
+  margin-right: 10px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.add-bill-form button {
+  flex-shrink: 0;
+}
+
+.bill-table th {
+  background-color: #f8f9fa;
+}
+
+.bill-table td {
+  vertical-align: middle;
+}
+
+.bill-table .paid-bill {
+  text-decoration: line-through;
+  color: #6c757d;
+}
+
+.bill-table .action-btn {
+  margin-right: 5px;
 }
