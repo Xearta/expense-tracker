@@ -23,6 +23,7 @@ const BillTracker = () => {
   const [newBill, setNewBill] = useState("");
   const [newBillAmount, setNewBillAmount] = useState("");
   const [newBillDueDate, setNewBillDueDate] = useState(new Date());
+  const [editingIndex, setEditingIndex] = useState(null);
   const [frequency, setFrequency] = useState("onetime");
   const [spendableAmount, setSpendableAmount] = useState(0);
   const [filteredBills, setFilteredBills] = useState([]);
@@ -175,37 +176,38 @@ const BillTracker = () => {
 
   const addBill = () => {
     if (newBill && newBillAmount) {
-      const currentDueDate = moment(newBillDueDate).startOf("day"); // Convert to moment object
+      const currentDueDate = moment(newBillDueDate); // Convert to moment object
 
-      const bill = {
-        id: uuidv4(), //Generate a unique id
-        name: newBill,
-        amount: parseFloat(newBillAmount),
-        dueDate: currentDueDate.format("YYYY-MM-DD"), // Format as "YYYY-MM-DD" for Firebase
-        frequency: frequency || "One-Time",
-        paid: false,
-      };
-
-      // Check if the current due date has passed
-      const currentDate = moment().startOf("day");
-      if (currentDueDate.isBefore(currentDate, "day")) {
-        // Calculate the next due date based on the selected frequency
-        if (frequency === "weekly") {
-          currentDueDate.add(1, "weeks");
-        } else if (frequency === "monthly") {
-          currentDueDate.add(1, "months");
-        } else if (frequency === "yearly") {
-          currentDueDate.add(1, "years");
-        }
+      if (editingIndex !== null) {
+        // If editingIndex is not null, it means we are updating an existing bill
+        const updatedBills = [...filteredBills];
+        updatedBills[editingIndex] = {
+          ...updatedBills[editingIndex],
+          name: newBill,
+          amount: parseFloat(newBillAmount),
+          dueDate: currentDueDate.format("YYYY-MM-DD"), // Format as "YYYY-MM-DD" for Firebase
+          frequency: frequency || "One-Time",
+        };
+        setFilteredBills(updatedBills);
+      } else {
+        // If editingIndex is null, it means we are adding a new bill
+        const bill = {
+          id: uuidv4(),
+          name: newBill,
+          amount: parseFloat(newBillAmount),
+          dueDate: currentDueDate.format("YYYY-MM-DD"),
+          frequency: frequency || "One-Time",
+          paid: false,
+        };
+        setFilteredBills([...filteredBills, bill]);
       }
 
-      bill.dueDate = currentDueDate.format("YYYY-MM-DD"); // Format as "YYYY-MM-DD" for Firebase
-      setNewBillDueDate(currentDueDate.toDate()); // Convert back to Date object
-      setBills((prevBills) => [...prevBills, bill]);
-
-      //   checkDueDates();
+      // Reset the form and editing index after adding/updating a bill
       setNewBill("");
       setNewBillAmount("");
+      setNewBillDueDate(new Date());
+      setFrequency("onetime");
+      setEditingIndex(null);
     }
   };
 
@@ -378,6 +380,18 @@ const BillTracker = () => {
     setFilteredBills(bills);
   };
 
+  const editBill = (index) => {
+    // Set the editing index to the selected bill's index
+    setEditingIndex(index);
+
+    // Populate the bill information into the add bill form
+    const billToEdit = filteredBills[index];
+    setNewBill(billToEdit.name);
+    setNewBillAmount(billToEdit.amount);
+    setNewBillDueDate(moment(billToEdit.dueDate).toDate());
+    setFrequency(billToEdit.frequency);
+  };
+
   const deleteBill = (billId) => {
     // Filter out the bill to be deleted from the state
     const updatedBills = bills.filter((bill) => bill.id !== billId);
@@ -519,7 +533,14 @@ const BillTracker = () => {
                       onChange={() => handlePaymentToggle(index)}
                     />
                   </td>
+
                   <td>
+                    <button
+                      className="btn btn-sm btn-warning action-btn mr-2"
+                      onClick={() => editBill(index)}
+                    >
+                      Edit
+                    </button>
                     <button
                       className="btn btn-sm btn-danger action-btn"
                       onClick={() => {

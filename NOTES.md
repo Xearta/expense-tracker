@@ -1,11 +1,10 @@
 # Bugs
 
-- Bills don't auto update at the next day
+- Bills auto 'filter' after every action resulting in nothing showing temperarily
 - Bills don't sort automatically and properly
 
 # Todos
 
-- Add a filter for bills due this month
 - Edit the bill amount
 - Clear all paid
 - Paydays should auto generate up to 10 out.
@@ -14,4 +13,7 @@
     - If not, generate another payday and save
 
 - Pull the account balance automatically from Plaid
+
   - May need authentication
+
+- Add the ability to have savings goals that will subtract from spendable amount
