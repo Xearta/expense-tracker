@@ -1,8 +1,8 @@
 # Bugs
 
 - Bills auto 'filter' after every action resulting in nothing showing temperarily
-- Unchecking paid doesn't work properly
 - Bills don't sort automatically and properly
+- Checking paid refreshes back to filteredBills display
 
 # Todos
 

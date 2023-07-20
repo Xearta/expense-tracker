@@ -180,7 +180,7 @@ const BillTracker = () => {
 
       if (editingIndex !== null) {
         // If editingIndex is not null, it means we are updating an existing bill
-        const updatedBills = [...filteredBills];
+        const updatedBills = [...bills];
         updatedBills[editingIndex] = {
           ...updatedBills[editingIndex],
           name: newBill,
@@ -188,7 +188,7 @@ const BillTracker = () => {
           dueDate: currentDueDate.format("YYYY-MM-DD"), // Format as "YYYY-MM-DD" for Firebase
           frequency: frequency || "One-Time",
         };
-        setFilteredBills(updatedBills);
+        setBills(updatedBills);
       } else {
         // If editingIndex is null, it means we are adding a new bill
         const bill = {
@@ -199,7 +199,9 @@ const BillTracker = () => {
           frequency: frequency || "One-Time",
           paid: false,
         };
+
         setFilteredBills([...filteredBills, bill]);
+        setBills((prevBills) => [...prevBills, bill]);
       }
 
       // Reset the form and editing index after adding/updating a bill
@@ -368,11 +370,6 @@ const BillTracker = () => {
     setFilteredBills(filtered);
   };
 
-  const filterPaidBills = () => {
-    const filtered = bills.filter((bill) => bill.paid);
-    setFilteredBills(filtered);
-  };
-
   const showAllBills = () => {
     setFilteredBills(bills);
   };
@@ -493,12 +490,6 @@ const BillTracker = () => {
                 onClick={filterNextMonthsBills}
               >
                 {moment().add(1, "month").format("MMMM")}
-              </button>
-              <button
-                className="btn btn-secondary mr-2"
-                onClick={filterPaidBills}
-              >
-                Paid Bills
               </button>
               <button className="btn btn-secondary" onClick={showAllBills}>
                 Show All
