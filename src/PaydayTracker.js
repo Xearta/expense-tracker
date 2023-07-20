@@ -21,6 +21,7 @@ const PaydayTracker = (props) => {
   // Save data to Firebase whenever paydays change
   useEffect(() => {
     if (dataLoaded) {
+      checkAndGeneratePaydays();
       saveDataToFirebase("paydays", paydays);
       // ... Other actions you want to perform when paydays change
     }
@@ -96,6 +97,43 @@ const PaydayTracker = (props) => {
       (payday) => payday.date >= currentDate
     );
     return nextPayday ? nextPayday.date : "N/A";
+  };
+
+  const checkAndGeneratePaydays = () => {
+    console.log("checking paydays");
+
+    // Check if there are at least 10 paydays after today's date
+    const currentDate = moment().startOf("day");
+    const sortedPaydays = [...paydays].sort((a, b) =>
+      a.date.localeCompare(b.date)
+    );
+    const next10Paydays = sortedPaydays.filter((payday) =>
+      moment(payday.date).isAfter(currentDate)
+    );
+
+    if (next10Paydays.length < 10) {
+      // Generate additional paydays until there are 10
+      const lastPaydayDate = sortedPaydays[sortedPaydays.length - 1]?.date;
+      const lastPaydayAmount = sortedPaydays[sortedPaydays.length - 1]?.amount;
+      const nextPaydayDate = lastPaydayDate
+        ? moment(lastPaydayDate).add(14, "day")
+        : moment().startOf("day"); // If there are no paydays yet, start from today
+
+      generatePayday(nextPaydayDate, lastPaydayAmount);
+
+      console.log("less than 10 paydays");
+    }
+
+    console.log(next10Paydays, paydays);
+  };
+
+  const generatePayday = (date, amount) => {
+    const newPayday = {
+      date: date.format("YYYY-MM-DD"), // Format the date as a string
+      amount: amount,
+    };
+
+    setPaydays((prevPaydays) => [...prevPaydays, newPayday]);
   };
 
   return (
