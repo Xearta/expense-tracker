@@ -1,6 +1,7 @@
 # Bugs
 
 - No decimal on number pad
+- Shouldn't go left and right on mobile. Fix the table.
 - Bills don't sort automatically and properly
 
 # Todos

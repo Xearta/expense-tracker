@@ -455,10 +455,11 @@ const BillTracker = () => {
               <p className="h4">${editedBalance.toFixed(2)}</p>
               <input
                 type="number"
-                inputMode="numeric"
+                pattern="[0–9]*"
+                inputMode="decimal"
                 step="any" // Allow decimal input
                 placeholder="Enter a number"
-                value={editedBalance}
+                value={editedBalance || ""}
                 onChange={(e) => {
                   const inputValue = e.target.value;
                   if (inputValue === "") {
@@ -495,7 +496,8 @@ const BillTracker = () => {
               />
               <input
                 type="number"
-                inputMode="numeric"
+                pattern="[0–9]*"
+                inputMode="decimal"
                 step="any" // Allow decimal input
                 placeholder="Enter bill amount"
                 value={newBillAmount}
