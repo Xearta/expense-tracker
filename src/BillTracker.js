@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const BillTracker = () => {
-  const [balance, setBalance] = useState(500);
+  const [balance, setBalance] = useState(1000);
   const [editedBalance, setEditedBalance] = useState(balance);
 
   const [bills, setBills] = useState([]);
@@ -231,10 +231,7 @@ const BillTracker = () => {
     );
 
     const totalBillsDue = billsDueUntilNextPayday.reduce((sum, bill) => {
-      if (!bill.paid) {
-        return sum + bill.amount;
-      }
-      return sum;
+      return sum + bill.amount;
     }, 0);
 
     return editedBalance - totalBillsDue;
@@ -272,11 +269,11 @@ const BillTracker = () => {
   const sortBills = () => {
     const sortedBills = [...bills].sort((a, b) => {
       // Sort by paid status first (paid bills go to the bottom)
-      if (a.paid && !b.paid) {
-        return 1;
-      } else if (!a.paid && b.paid) {
-        return -1;
-      }
+      //   if (a.paid && !b.paid) {
+      //     return 1;
+      //   } else if (!a.paid && b.paid) {
+      //     return -1;
+      //   }
 
       // Sort by due date
       return new Date(a.dueDate) - new Date(b.dueDate);

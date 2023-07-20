@@ -100,8 +100,6 @@ const PaydayTracker = (props) => {
   };
 
   const checkAndGeneratePaydays = () => {
-    console.log("checking paydays");
-
     // Check if there are at least 10 paydays after today's date
     const currentDate = moment().startOf("day");
     const sortedPaydays = [...paydays].sort((a, b) =>
@@ -120,11 +118,7 @@ const PaydayTracker = (props) => {
         : moment().startOf("day"); // If there are no paydays yet, start from today
 
       generatePayday(nextPaydayDate, lastPaydayAmount);
-
-      console.log("less than 10 paydays");
     }
-
-    console.log(next10Paydays, paydays);
   };
 
   const generatePayday = (date, amount) => {
