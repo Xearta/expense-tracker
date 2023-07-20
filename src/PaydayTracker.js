@@ -84,7 +84,6 @@ const PaydayTracker = (props) => {
       }
 
       setPaydays(paydaysList);
-      //   props.setPaydays(paydaysList);
     }
   };
 

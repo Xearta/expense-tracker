@@ -140,7 +140,7 @@ const BillTracker = () => {
   };
 
   const checkDueDates = () => {
-    const currentDate = moment();
+    const currentDate = moment().startOf("day");
     const midnightToday = moment().startOf("day");
 
     const updatedBills = bills.map((bill) => {
@@ -175,7 +175,7 @@ const BillTracker = () => {
 
   const addBill = () => {
     if (newBill && newBillAmount) {
-      const currentDueDate = moment(newBillDueDate); // Convert to moment object
+      const currentDueDate = moment(newBillDueDate).startOf("day"); // Convert to moment object
 
       const bill = {
         id: uuidv4(), //Generate a unique id
@@ -187,7 +187,7 @@ const BillTracker = () => {
       };
 
       // Check if the current due date has passed
-      const currentDate = moment();
+      const currentDate = moment().startOf("day");
       if (currentDueDate.isBefore(currentDate, "day")) {
         // Calculate the next due date based on the selected frequency
         if (frequency === "weekly") {
@@ -283,8 +283,24 @@ const BillTracker = () => {
     setBills(sortedBills);
   };
 
+  const getNextPayday = () => {
+    // Find the next upcoming payday
+    const currentDate = moment().startOf("day").format("YYYY-MM-DD");
+    const nextPayday = paydays.find((payday) =>
+      moment(payday.date).isSameOrAfter(currentDate)
+    );
+
+    // Find the payday after the next payday
+    const nextPaydayIndex = paydays.findIndex(
+      (payday) => payday.date === nextPayday?.date
+    );
+    const secondNextPayday = paydays[nextPaydayIndex + 1];
+
+    return { nextPayday, secondNextPayday };
+  };
+
   const filterDueBills = () => {
-    const currentDate = moment().format("YYYY-MM-DD");
+    const currentDate = moment().startOf("day").format("YYYY-MM-DD");
     const nextPayday = paydays.find((payday) =>
       moment(payday.date).isSameOrAfter(currentDate)
     );
@@ -295,6 +311,24 @@ const BillTracker = () => {
         moment(bill.dueDate).isSameOrBefore(nextPayday?.date)
     );
     setFilteredBills(filtered);
+  };
+
+  const filterBillsBetweenPaydays = (startDate, endDate) => {
+    const filtered = bills.filter(
+      (bill) =>
+        moment(bill.dueDate).isSameOrAfter(startDate, "day") &&
+        moment(bill.dueDate).isSameOrBefore(endDate, "day")
+    );
+    return filtered;
+  };
+
+  const filterBillsBetweenNextPaydays = () => {
+    const { nextPayday, secondNextPayday } = getNextPayday();
+    const filteredBills = filterBillsBetweenPaydays(
+      nextPayday.date,
+      secondNextPayday.date
+    );
+    setFilteredBills(filteredBills);
   };
 
   const filterPaidBills = () => {
@@ -392,6 +426,12 @@ const BillTracker = () => {
                 onClick={filterDueBills}
               >
                 Due Bills
+              </button>
+              <button
+                className="btn btn-secondary mr-2"
+                onClick={filterBillsBetweenNextPaydays}
+              >
+                Next Paycheck Bills
               </button>
               <button
                 className="btn btn-secondary mr-2"
