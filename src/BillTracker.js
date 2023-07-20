@@ -183,7 +183,6 @@ const BillTracker = () => {
     });
 
     setBills(updatedBills);
-    console.log("checked due dates");
   };
 
   const getNextWeekDate = (currentDate) => {
@@ -455,8 +454,9 @@ const BillTracker = () => {
             <div>
               <p className="h4">${editedBalance.toFixed(2)}</p>
               <input
-                inputMode="numeric"
                 type="number"
+                inputMode="numeric"
+                step="any" // Allow decimal input
                 placeholder="Enter a number"
                 value={editedBalance}
                 onChange={(e) => {
@@ -496,6 +496,7 @@ const BillTracker = () => {
               <input
                 type="number"
                 inputMode="numeric"
+                step="any" // Allow decimal input
                 placeholder="Enter bill amount"
                 value={newBillAmount}
                 onChange={(e) => setNewBillAmount(e.target.value)}

@@ -1,8 +1,7 @@
 # Bugs
 
+- No decimal on number pad
 - Bills don't sort automatically and properly
-
-- On delete, it doesn't auto update
 
 # Todos
 
@@ -12,12 +11,3 @@
 
 - Change the account balance field to number
 - Change bill amount field to number
-
-# WORKING ON:
-
-- Sorting function
-
-# Fixing:
-
-- Fixed numeric pad on mobile?
-- Adding an old bill now correctly updates the date and refreshes
