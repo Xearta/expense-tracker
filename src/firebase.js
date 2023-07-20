@@ -1,15 +1,16 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
+import { apiKey, projectId, appId, messagingSenderId } from "./keys";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAHrkmu7aBMn-UaCC6LYeIZrd2gn6iefoc",
+  apiKey: apiKey,
   authDomain: "budget-app-9134f.firebaseapp.com",
-  projectId: "budget-app-9134f",
+  projectId: projectId,
   storageBucket: "budget-app-9134f.appspot.com",
-  messagingSenderId: "571780527004",
-  appId: "1:571780527004:web:375c6412329457ad8c4e59",
+  messagingSenderId: messagingSenderId,
+  appId: appId,
 };
 
 // Initialize Firebase
