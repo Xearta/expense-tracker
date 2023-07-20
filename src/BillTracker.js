@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const BillTracker = () => {
-  const [balance, setBalance] = useState(1000);
+  const [balance, setBalance] = useState(0);
   const [editedBalance, setEditedBalance] = useState(balance);
 
   const [bills, setBills] = useState([]);
@@ -42,12 +42,14 @@ const BillTracker = () => {
   useEffect(() => {
     const loadData = async () => {
       // Fetch data from Firebase for bills and paydays concurrently
-      const [billsData, paydaysData] = await Promise.all([
+      const [balanceData, billsData, paydaysData] = await Promise.all([
+        loadDataFromFirebase("acctBalance"),
         loadDataFromFirebase("bills"),
         loadDataFromFirebase("paydays"),
       ]);
 
       // Set the fetched data to the corresponding state variables
+      setEditedBalance(balanceData);
       setBills(billsData);
       setPaydays(paydaysData);
 
@@ -89,6 +91,7 @@ const BillTracker = () => {
     if (dataLoaded) {
       // Data is loaded from Firebase, so now we can run checkDueDates once
       checkDueDates();
+      sortBills();
       filterDueBills();
     }
   }, [dataLoaded]);
@@ -103,8 +106,6 @@ const BillTracker = () => {
     }
 
     isFirstLoad.current = false;
-
-    console.log(currentFilter);
   }, [bills, dataLoaded]);
 
   useEffect(() => {
@@ -141,9 +142,15 @@ const BillTracker = () => {
         (snapshot) => {
           const data = snapshot.val();
           if (data) {
-            // Convert data object to an array using Object.values()
-            const dataArray = Object.values(data || {});
-            resolve(dataArray);
+            // If data is an array, it's a list of objects
+            if (Array.isArray(data)) {
+              // Convert data array to an array of objects using Object.values()
+              const dataArray = Object.values(data);
+              resolve(dataArray);
+            } else {
+              // Otherwise, it's a single number
+              resolve(data);
+            }
           } else {
             // If there is no data, resolve with an empty array
             resolve([]);
@@ -475,6 +482,8 @@ const BillTracker = () => {
                   setBalance(editedBalance);
                   const updatedSpendableAmount = calculateSpendableAmount();
                   setSpendableAmount(updatedSpendableAmount);
+
+                  saveDataToFirebase("acctBalance", editedBalance);
                 }}
               >
                 Save
