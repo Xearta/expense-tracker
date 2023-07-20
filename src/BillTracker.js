@@ -142,10 +142,11 @@ const BillTracker = () => {
 
   const checkDueDates = () => {
     const currentDate = moment().startOf("day");
-    const midnightToday = moment().startOf("day");
 
     const updatedBills = bills.map((bill) => {
-      if (moment(bill.dueDate) < midnightToday) {
+      if (moment(bill.dueDate) < currentDate) {
+        bill.paid = false;
+
         // Due date has passed, update the due date based on the frequency
         if (bill.frequency === "weekly") {
           bill.dueDate = getNextWeekDate(bill.dueDate);
@@ -229,6 +230,7 @@ const BillTracker = () => {
     const billsDueUntilNextPayday = bills.filter(
       (bill) =>
         moment(bill.dueDate).isSameOrAfter(currentDate) &&
+        !bill.paid &&
         moment(bill.dueDate).isSameOrBefore(nextPayday.date)
     );
 
@@ -260,7 +262,9 @@ const BillTracker = () => {
   };
 
   const handlePaymentToggle = (index) => {
-    const updatedBills = [...bills];
+    console.log(index);
+
+    const updatedBills = [...filteredBills];
     updatedBills[index].paid = !updatedBills[index].paid;
     setBills(updatedBills);
 
@@ -316,6 +320,7 @@ const BillTracker = () => {
     const filtered = bills.filter(
       (bill) =>
         moment(bill.dueDate).isSameOrAfter(currentDate) &&
+        !bill.paid &&
         moment(bill.dueDate).isSameOrBefore(nextPayday?.date)
     );
     setFilteredBills(filtered);
