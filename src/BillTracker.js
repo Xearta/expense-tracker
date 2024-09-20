@@ -316,11 +316,23 @@ const BillTracker = () => {
     if (nextPayday) {
       const daysUntilPayday = moment(nextPayday.date).diff(currentDate, "days");
 
-      if (daysUntilPayday === 0) {
-        return "PAYDAY!";
+      // Find the next payday after the current one (for frequency calculation)
+      const nextNextPayday = paydays.find((payday) =>
+        moment(payday.date).isAfter(nextPayday.date)
+      );
+
+      if (nextNextPayday) {
+        const daysBetweenPaydays = moment(nextNextPayday.date).diff(
+          nextPayday.date,
+          "days"
+        );
+
+        return daysUntilPayday === 0
+          ? `PAYDAY! (${daysBetweenPaydays})` // Today is payday
+          : daysUntilPayday; // Days until next payday
       }
 
-      return daysUntilPayday;
+      return daysUntilPayday; // Only one payday available
     }
 
     return "ERROR"; // If no upcoming payday found, return 0
@@ -360,7 +372,7 @@ const BillTracker = () => {
     // Find the next upcoming payday
     const currentDate = moment().startOf("day").format("YYYY-MM-DD");
     const nextPayday = paydays.find((payday) =>
-      moment(payday.date).isSameOrAfter(currentDate)
+      moment(payday.date).isAfter(currentDate)
     );
 
     // Find the payday after the next payday
