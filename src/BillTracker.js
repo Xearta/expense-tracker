@@ -252,12 +252,38 @@ const BillTracker = () => {
     }
   };
 
+  // const calculateSpendableAmount = () => {
+  //   const currentDate = moment().startOf("day");
+
+  //   // Find the next upcoming payday
+  //   const nextPayday = paydays.find((payday) =>
+  //     moment(payday.date).isSameOrAfter(currentDate)
+  //   );
+
+  //   if (!nextPayday) {
+  //     console.log("ERROR: NO payday");
+  //     return editedBalance;
+  //   }
+
+  //   const billsDueUntilNextPayday = bills.filter(
+  //     (bill) =>
+  //       moment(bill.dueDate).isSameOrAfter(currentDate) &&
+  //       !bill.paid &&
+  //       moment(bill.dueDate).isSameOrBefore(nextPayday.date)
+  //   );
+
+  //   const totalBillsDue = billsDueUntilNextPayday.reduce((sum, bill) => {
+  //     return sum + bill.amount;
+  //   }, 0);
+
+  //   return editedBalance - totalBillsDue;
+  // };
   const calculateSpendableAmount = () => {
     const currentDate = moment().startOf("day");
 
     // Find the next upcoming payday
     const nextPayday = paydays.find((payday) =>
-      moment(payday.date).isSameOrAfter(currentDate)
+      moment(payday.date).isAfter(currentDate)
     );
 
     if (!nextPayday) {
@@ -265,11 +291,12 @@ const BillTracker = () => {
       return editedBalance;
     }
 
+    // If today is the payday, we want to include all bills up to and including the payday
     const billsDueUntilNextPayday = bills.filter(
       (bill) =>
         moment(bill.dueDate).isSameOrAfter(currentDate) &&
         !bill.paid &&
-        moment(bill.dueDate).isSameOrBefore(nextPayday.date)
+        moment(bill.dueDate).isSameOrBefore(nextPayday.date, "day") // Include bills due on payday
     );
 
     const totalBillsDue = billsDueUntilNextPayday.reduce((sum, bill) => {
@@ -356,17 +383,38 @@ const BillTracker = () => {
     setCurrentFilter("duebills");
 
     const currentDate = moment().startOf("day").format("YYYY-MM-DD");
+
+    // Find today's payday and the next payday
+    const todayPayday = paydays.find((payday) =>
+      moment(payday.date).isSame(currentDate, "day")
+    );
     const nextPayday = paydays.find((payday) =>
-      moment(payday.date).isSameOrAfter(currentDate)
+      moment(payday.date).isAfter(currentDate, "day")
     );
 
-    const filtered = bills.filter(
-      (bill) =>
-        moment(bill.dueDate).isSameOrAfter(currentDate) &&
-        !bill.paid &&
-        moment(bill.dueDate).isSameOrBefore(nextPayday?.date)
-    );
-    setFilteredBills(filtered);
+    // If today is a payday, filter bills due from today until the next payday (inclusive)
+    if (todayPayday) {
+      const filtered = bills.filter(
+        (bill) =>
+          moment(bill.dueDate).isSameOrAfter(currentDate, "day") &&
+          !bill.paid &&
+          moment(bill.dueDate).isSameOrBefore(nextPayday?.date, "day")
+      );
+      setFilteredBills(filtered);
+    } else {
+      // If today is not a payday, just show bills due from today to the next payday
+      const nextPayday = paydays.find((payday) =>
+        moment(payday.date).isSameOrAfter(currentDate, "day")
+      );
+
+      const filtered = bills.filter(
+        (bill) =>
+          moment(bill.dueDate).isSameOrAfter(currentDate, "day") &&
+          !bill.paid &&
+          moment(bill.dueDate).isSameOrBefore(nextPayday?.date)
+      );
+      setFilteredBills(filtered);
+    }
   };
 
   const filterBillsBetweenPaydays = (startDate, endDate) => {
