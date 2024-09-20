@@ -7,7 +7,6 @@ import moment from "moment";
 const PaydayTracker = (props) => {
   const [paydays, setPaydays] = useState([]);
   const [nextPayday, setNextPayday] = useState("");
-  const [paydayAmount, setPaydayAmount] = useState("");
   const [paydayFrequency, setPaydayFrequency] = useState("weekly");
 
   // State variable to track if data has been loaded from Firebase
@@ -47,20 +46,18 @@ const PaydayTracker = (props) => {
   };
 
   const addPayday = () => {
-    if (nextPayday && paydayAmount) {
+    if (nextPayday) {
       const payday = {
         date: nextPayday,
-        amount: parseFloat(paydayAmount),
       };
 
       setPaydays((prevPaydays) => [...prevPaydays, payday]);
       setNextPayday("");
-      setPaydayAmount("");
     }
   };
 
   const generatePaydays = () => {
-    if (nextPayday && paydayFrequency && paydayAmount) {
+    if (nextPayday && paydayFrequency) {
       const frequencyInDays = {
         weekly: 7,
         biweekly: 14,
@@ -69,7 +66,6 @@ const PaydayTracker = (props) => {
 
       const paydaysList = [];
       const currentDate = moment(nextPayday); // Use moment to parse the selected date
-      const amount = parseFloat(paydayAmount);
 
       for (let i = 0; i < 5; i++) {
         const paydayDate = moment(currentDate); // Use moment to create the new date
@@ -80,7 +76,6 @@ const PaydayTracker = (props) => {
 
         paydaysList.push({
           date: paydayDate.format("YYYY-MM-DD"), // Format the date as a string
-          amount: amount,
         });
       }
 
@@ -112,19 +107,17 @@ const PaydayTracker = (props) => {
     if (next10Paydays.length < 10) {
       // Generate additional paydays until there are 10
       const lastPaydayDate = sortedPaydays[sortedPaydays.length - 1]?.date;
-      const lastPaydayAmount = sortedPaydays[sortedPaydays.length - 1]?.amount;
       const nextPaydayDate = lastPaydayDate
         ? moment(lastPaydayDate).add(14, "day")
         : moment().startOf("day"); // If there are no paydays yet, start from today
 
-      generatePayday(nextPaydayDate, lastPaydayAmount);
+      generatePayday(nextPaydayDate);
     }
   };
 
-  const generatePayday = (date, amount) => {
+  const generatePayday = (date) => {
     const newPayday = {
       date: date.format("YYYY-MM-DD"), // Format the date as a string
-      amount: amount,
     };
 
     setPaydays((prevPaydays) => [...prevPaydays, newPayday]);
@@ -156,15 +149,6 @@ const PaydayTracker = (props) => {
         />
       </div>
       <div>
-        <label htmlFor="paydayAmount">Payday Amount:</label>
-        <input
-          type="number"
-          id="paydayAmount"
-          value={paydayAmount}
-          onChange={(e) => setPaydayAmount(e.target.value)}
-        />
-      </div>
-      <div>
         <label htmlFor="paydayFrequency">Payday Frequency:</label>
         <select
           id="paydayFrequency"
@@ -182,10 +166,7 @@ const PaydayTracker = (props) => {
         <h3>Upcoming Paydays:</h3>
         <ul>
           {paydays.map((payday, index) => (
-            <li key={index}>
-              {moment(payday.date).format("MM/DD/YYYY")} - Amount: $
-              {payday.amount.toFixed(2)}
-            </li>
+            <li key={index}>{moment(payday.date).format("MM/DD/YYYY")}</li>
           ))}
         </ul>
       </div>
